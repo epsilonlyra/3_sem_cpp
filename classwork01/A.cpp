@@ -20,7 +20,7 @@ char b = 'b';
 
 swap(&a , &b, sizeof(char));
 
-std :: cout << a << b << '\n';
+std :: cout << a <<' '<<  b << '\n';
 
 return 0;
 }

@@ -19,6 +19,21 @@ int compare_int_reverse (void* left, void* right){
 }
 
 
+void* move_void_pointer(void* pointer, int step){
+    /*
+    This function is an ugly appendage used to bypass
+    impossibility to add a number to a void* pointer
+    in some architectures
+    */
+
+    char* temp = reinterpret_cast<char*>(pointer);
+    temp = temp + step;
+
+    void* moved_pointer = reinterpret_cast<void*>(temp);
+    return moved_pointer;
+}
+
+
 int min(void* arr, int arr_size, int type_size, int (*compare)(void*, void*)){
 
 
@@ -27,9 +42,9 @@ int min(void* arr, int arr_size, int type_size, int (*compare)(void*, void*)){
 
     for (int i = 0; i < arr_size; i++){
 
-        if (compare(arr + i * type_size, current_min)){
+        if (compare(move_void_pointer(arr, type_size * i), current_min)){
             current_min_index = i;
-            current_min = arr + i * type_size;
+            current_min = move_void_pointer(arr, i * type_size);
         }
     }
 
@@ -44,9 +59,9 @@ int max(void* arr, int arr_size, int type_size, int (*compare)(void*, void*)){
 
     for (int i = 0; i < arr_size; i++){
 
-        if (compare(current_max, arr + i * type_size)){
+        if (compare(current_max, move_void_pointer(arr, type_size * i))){
             current_max_index = i;
-            current_max = arr + i * type_size;
+            current_max = move_void_pointer(arr, i * type_size);
         }
     }
 

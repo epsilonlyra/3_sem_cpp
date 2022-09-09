@@ -12,6 +12,20 @@ void swap (void* a, void* b, int type_size){
     free(tmp);
 }
 
+void* move_void_pointer(void* pointer, int step){
+    /*
+    This function is an ugly appendage used to bypass
+    impossibility to add a number to a void* pointer
+    in some architectures
+    */
+
+    char* temp = reinterpret_cast<char*>(pointer);
+    temp = temp + step;
+
+    void* moved_pointer = reinterpret_cast<void*>(temp);
+    return moved_pointer;
+}
+
 void qsort(void* arr, int type_size, int left, int right, int (*compare)(void *, void *)){
 
     int i = left;
@@ -26,18 +40,18 @@ void qsort(void* arr, int type_size, int left, int right, int (*compare)(void *,
     while (i != j){
 
         for (i = left; i < pivot; i++){
-            if (compare(arr + pivot * type_size, arr + i * type_size)){
+            if (compare(move_void_pointer(arr, pivot * type_size), move_void_pointer(arr, i * type_size))){
                 break;
             }
         }
 
         for (j = right; j > pivot; j--){
-            if (compare(arr + j * type_size, arr + pivot * type_size)){
+            if (compare(move_void_pointer(arr, j * type_size), move_void_pointer(arr,pivot * type_size))){
                 break;
             }
         }
 
-    swap(arr + j * type_size, arr + i * type_size, type_size);
+    swap(move_void_pointer(arr,j * type_size), move_void_pointer(arr, i * type_size), type_size);
 
     qsort(arr, type_size, 0, pivot, compare);
     qsort(arr, type_size, pivot + 1, right, compare);

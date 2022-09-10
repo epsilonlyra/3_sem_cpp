@@ -7,9 +7,9 @@ class Fraction {
 
         Fraction(int numerator) : Fraction(numerator, 1){}
 
-        Fraction() =  delete;
+        Fraction() =  delete; // useless
 
-        Fraction(const Fraction& other) : numerator(other.numerator), denominator(other.denominator) {}
+        Fraction(const Fraction& other) : numerator(other.numerator), denominator(other.denominator) {} // useless
 
         void printFraction(){
             std :: cout << numerator << '/' << denominator << '\n';
@@ -27,7 +27,6 @@ class Fraction {
         }
 
         void multByNumber(int value){
-
             numerator *= value;
         }
 
@@ -47,15 +46,31 @@ class Fraction {
             return result;
         }
 
-        void addFrac(const Fraction& other){
+        void summFrac(const Fraction& other){
             numerator = numerator * other.denominator + other.numerator * denominator;
             denominator *= other.denominator;
         }
 
-        Fraction addFracReturn(const Fraction& other){
+        Fraction summFracReturn(const Fraction& other){
             int num, den;
 
             num = other.numerator * this->denominator + this->numerator * other.denominator;
+            den = other.denominator * this->denominator;
+
+            Fraction result = Fraction(num, den);
+
+            return result;
+        }
+
+        void diffFrac(const Fraction& other){
+            numerator = numerator * other.denominator - other.numerator * denominator;
+            denominator *= other.denominator;
+        }
+
+        Fraction diffFracReturn(const Fraction& other){
+            int num, den;
+
+            num = other.numerator * this->denominator - this->numerator * other.denominator;
             den = other.denominator * this->denominator;
 
             Fraction result = Fraction(num, den);
@@ -101,11 +116,19 @@ class Fraction {
 
             return a;
         }
+
 };
 
 int main(){
 
-    Fraction matvet = Fraction(5, 8);
+    Fraction matvey = Fraction(5);
+    Fraction anoshin = Fraction(8, 4);
+
+    Fraction helena = matvey.summFracReturn(anoshin);
+
+    helena.fracSimplify();
+    helena.printFraction();
+
 
 return 0;
 }

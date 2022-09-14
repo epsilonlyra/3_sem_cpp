@@ -1,4 +1,17 @@
 #include<iostream>
+#include<string>
+
+
+unsigned long long  tenpower(unsigned long long  a){
+
+    unsigned long long result = 1;
+
+    for (int i = 0; i < a; i++){
+        result *= 10;
+    }
+
+    return result;
+}
 
 struct Point{
 
@@ -63,17 +76,131 @@ class Rectangle {
 
 };
 
+
+unsigned long long get_coordinate (std :: string expression, int iterator, char stop_condition){
+
+    int reverse_iterator = iterator - 1;
+
+    unsigned long long x = 0;;
+
+    while(true){
+
+        if (expression[reverse_iterator] == stop_condition){
+            break;
+        }
+
+        unsigned long long digit = (expression[reverse_iterator]);
+        unsigned long long order = tenpower(iterator - 1 - reverse_iterator);
+
+        x = order * (digit - 48); // magical number
+
+        reverse_iterator--;
+    }
+
+    return x;
+}
+
+Rectangle Get_Rectangle (std :: string expression, int begin_iter){
+
+    int iterator = begin_iter;
+
+    while(true){
+        if (expression[iterator] == ','){
+            break;
+        }
+
+        iterator++;
+    }
+
+    unsigned long long x = get_coordinate(expression, iterator, '(');
+
+     while(true){
+        if (expression[iterator] == ')'){
+            break;
+        }
+        iterator++;
+    }
+
+    unsigned long long y = get_coordinate(expression, iterator, ',');
+
+    return Rectangle(Point(x, y));
+}
+
+Rectangle calc_expression(std :: string expression, int begin_iter){
+
+    int iterator = begin_iter;
+    if (int(expression[iterator]) != 0){
+
+        Rectangle temp = Get_Rectangle(expression, iterator);
+    }
+
+    Rectangle temp = Get_Rectangle(expression, iterator);
+
+    bool found_plus = false;
+    bool found_mult = false;
+
+    while(!found_plus || !found_mult){
+
+        if (int(expression[iterator] == 0)){
+            return temp;
+        }
+
+        if (expression[iterator] == '+'){
+            found_plus = true;
+            break;
+        }
+        if (expression[iterator] == '*'){
+            found_mult = true;
+            break;
+        }
+
+        iterator++;
+    }
+
+
+
+    while(true){
+
+    if (expression[iterator] == '('){
+        break;
+    }
+
+    iterator++;
+    }
+
+    if (found_plus){
+        return temp + calc_expression(expression, iterator);
+    }
+
+    else{
+        Rectangle temp_two = Get_Rectangle(expression, iterator);
+
+        while (true){
+            if (expression[iterator] == ')'){
+                break;
+            }
+        iterator++;
+        }
+        return temp * temp_two + calc_expression(expression, iterator + 1);
+
+
+
+
+
+}
+}
+
 int main(){
+std :: string expression;
+std :: getline(std :: cin, expression);
 
-Point A = Point(5, 6);
-Point B = Point (7, 4);
 
-Rectangle a = Rectangle(A);
-Rectangle b = Rectangle(B);
+Rectangle a = calc_expression(expression, 0);
+a.print();
 
-Rectangle c = a * b;
+//temp.print();
 
-c.print();
+
 
 return 0;
 }

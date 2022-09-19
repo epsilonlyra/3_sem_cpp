@@ -54,7 +54,6 @@ class Rectangle {
         Rectangle operator+(const Rectangle &rha ) const{
 
             Rectangle bigx = Rectangle (point.maxx(rha.point));
-
             Rectangle bigy = Rectangle (bigx.point.maxy(rha.point));
 
             return bigy;
@@ -63,20 +62,15 @@ class Rectangle {
         Rectangle operator*(const Rectangle &rha ) const{
 
             Rectangle smallx = Rectangle (point.minx(rha.point));
-
             Rectangle smally = Rectangle (smallx.point.miny(rha.point));
 
             return smally;
         }
 
-
-
-
     private:
         Point point;
 
 };
-
 
 unsigned long long get_coordinate (std :: string expression, int iterator, char stop_condition){
 
@@ -128,6 +122,9 @@ Rectangle Get_Rectangle (std :: string expression, int begin_iter){
 }
 
 Rectangle calc_expression_plus(std :: string expression, int begin_iter){
+    /*
+    Add consecutive rectangles
+    */
 
     int iterator = begin_iter;
 
@@ -191,11 +188,14 @@ Rectangle calc_expression_plus(std :: string expression, int begin_iter){
 }
 
 Rectangle calc_expression_mult(std :: string expression, int begin_iter){
+     /*
+    Multiply consecutive rectangles
+    */
 
     int iterator = begin_iter;
 
     if (int(expression[iterator] == 0)){
-            return Rectangle(Point(99999, 999999)); // some big number
+            return Rectangle(Point(999999, 999999)); // some big number
         }
 
     Rectangle temp = Get_Rectangle(expression, iterator);
@@ -240,7 +240,7 @@ Rectangle calc_expression(std :: string expression, int begin_iter){
 
     int iterator = begin_iter;
 
-    while(!found_plus || !found_mult){
+    while(!found_plus && !found_mult){
 
         if (int(expression[iterator] == 0)){
             break;
@@ -265,17 +265,16 @@ Rectangle calc_expression(std :: string expression, int begin_iter){
 
         while(!found_mult){
 
-        if (int(expression[iterator] == 0)){
-            break;
-        }
+            if (int(expression[iterator] == 0)){
+                break;
+            }
 
-        if (expression[iterator] == '*'){
-            found_mult = true;
-            break;
-        }
+            if (expression[iterator] == '*'){
+                found_mult = true;
+                break;
+            }
 
-        iterator++;
-
+            iterator++;
         }
 
 
@@ -285,7 +284,7 @@ Rectangle calc_expression(std :: string expression, int begin_iter){
                 if (expression[iterator] == '('){
                     break;
                 }
-            iterator--;
+                iterator--;
             }
 
             return calc_expression_plus(expression, begin_iter) + calc_expression(expression, iterator);
@@ -293,25 +292,24 @@ Rectangle calc_expression(std :: string expression, int begin_iter){
 
         return calc_expression_plus(expression, begin_iter);
 
-
     }
 
-    if (found_mult){
+    else if (found_mult){
 
         found_plus = false;
 
         while(!found_plus){
 
-        if (int(expression[iterator] == 0)){
-            break;
-        }
+            if (int(expression[iterator] == 0)){
+                break;
+            }
 
-        if (expression[iterator] == '+'){
-            found_plus = true;
-            break;
-        }
+            if (expression[iterator] == '+'){
+                found_plus = true;
+                break;
+            }
 
-        iterator++;
+            iterator++;
 
         }
 
@@ -321,7 +319,7 @@ Rectangle calc_expression(std :: string expression, int begin_iter){
                 if (expression[iterator] == '('){
                     break;
                 }
-            iterator++;
+                iterator++;
             }
             return calc_expression_mult(expression, begin_iter) + calc_expression(expression, iterator);
         }
@@ -338,9 +336,7 @@ int main(){
 std :: string expression;
 std :: getline(std :: cin, expression);
 
-
 Rectangle temp = calc_expression(expression, 0);
-
 temp.print();
 
 return 0;

@@ -1,6 +1,7 @@
 #include<iostream>
 #include<set>
 #include<random>
+#include<fstream>
 
 using State = int;
 const State MaxState = 1000;
@@ -9,7 +10,6 @@ class GeneralState {
 
     protected:
         std::set <State> state;
-
 
     public:
 
@@ -23,6 +23,30 @@ class GeneralState {
             state.clear();
         }
 
+        GeneralState (const int N, int min, int max, int seed){
+        /*
+        Generates different(!) random numbers
+        If N is bigger than amount of all possible numbers will die
+        in infinite loop
+        */
+        std::set<State> Res;
+        Res.clear();
+
+        std :: default_random_engine reng(seed);
+        std :: uniform_int_distribution<int> dstr (min, max);
+
+        int different_states = 0;
+
+        while(different_states != N){
+            int current_random = dstr(reng);
+            if (Res.count(current_random) == 0){
+                Res.emplace(current_random);
+                different_states++;
+            }
+        }
+
+        state = Res;
+    }
 
         GeneralState operator+ (const GeneralState &rha) const {
             GeneralState Sum = *this;
@@ -56,10 +80,45 @@ class GeneralState {
             return Res;
         }
 
+        void write_in_file(std :: ofstream &fout){
+            fout.open("Random_State.txt");
+            for (std::set<State>::iterator i = state.begin(); i !=  state.end(); ++i){
+                fout << *i << '\n';
+            };
+            fout.close();
+        }
+
+        GeneralState& fetch_from_file(std :: ifstream &fin){
+
+            fin.open("Random_State.txt");
+
+            if (fin.is_open()){
+                std :: cout << "Reading";
+            }
+            else{
+                std :: cout << "Cannot Read";
+            }
+
+            State current_state;
+            while(fin >> current_state ){
+                state.emplace(current_state);
+            }
+            fin.close();
+
+            return *this;
+        }
+
 };
+
+
+
+
+
+
 
 class DiscreteState : public GeneralState {
     public:
+
         DiscreteState(State s0){
             state.clear();
             state.emplace(s0);
@@ -73,7 +132,7 @@ class SegmentState : public GeneralState {
     public:
         SegmentState(State begin_s0, State end_s0) {
             state.clear();
-            for(int i = begin_s0; i < end_s0+ 1; i++){
+            for(int i = begin_s0; i < end_s0 + 1; i++){
                 state.emplace(i);
             }
         }
@@ -103,53 +162,79 @@ class ProbabilityTest {
 
             return static_cast<float>(good) / static_cast<float>(test_count);
         }
+
+        float different_seed_test(const GeneralState &system, const unsigned test_count, const int seed_seed){
+            int N = 3;
+            int bound = 100;
+            std :: default_random_engine reng(seed_seed);
+            std :: uniform_int_distribution<int> dstr (-bound, bound);
+            float sum = 0;
+
+            for (int i = 0; i < N; i++){
+                sum += test(system, test_count, dstr(reng))/ N;
+            }
+
+            return sum;
+        }
 };
 
-GeneralState RandomGeneralState(const int N, int min, int max, int seed){
-    /*
-    Generates different(!) random numbers
-    If N is bigger than amount of all possible numbers will die
-    in infinite loop
-    */
-    std::set<State> Res;
-    Res.clear();
-
-    std :: default_random_engine reng(seed);
-    std :: uniform_int_distribution<int> dstr (min, max);
-
-    int different_states = 0;
-
-    while(different_states != N){
-        int current_random = dstr(reng);
-        if (Res.count(current_random) == 0){
-            Res.emplace(current_random);
-            different_states++;
-        }
-    }
-
-    return GeneralState(Res);
-}
 
 
 int main(){
 
+int seed_for_State = 126;
+int seed_for_Test = 0;
 
-
-
-DiscreteState d(0);
+GeneralState Kolya(100, -1000, 1000, seed_for_State);
 SegmentState s (0, 100);
-GeneralState Kolya = RandomGeneralState(10, -1000, 1000, 1);
-
-
-
 ProbabilityTest pt(-1000, 1000);
+
+GeneralState Evgen;
+
+std::ofstream fout;
+
+//Kolya.write_in_file(fout);
+
+
+fout.open("results.txt");
+
+fout << "State seed" << ';' <<  seed_for_State << ';'
+                            << "Test seed" << ';' << seed_for_Test << '\n';
+
+fout << "Test_Count" <<';' << "Random100" <<';' << "Consecutive100" << '\n';
+
+bool done = false;
+
+int test_amount = 1;
+
+while(!done){
+
+    fout << test_amount << ';' << pt.different_seed_test(Kolya, test_amount, seed_for_Test) << ';'
+                                << pt.different_seed_test(s, test_amount, seed_for_Test) << '\n';
+    test_amount  += 10;
+
+    if (test_amount > 20000){
+        done = true;
+    }
+}
+
+fout.close();
+
+/*DiscreteState d(0);
+
+
+std::set<State> Elena {1,4, 5};
+
+
+
 
 std :: cout << pt.test(d, 2000, 5) << '\n';
 std :: cout << pt.test(s, 20000000, 5) << '\n';
 std :: cout << pt.test(Kolya, 20000000, 5) << '\n';
+*/
 
 /*
-std::set<State> Elena {1,4, 5};
+
 std::set<State> Anoshin {1,4, 5};
 std::set<State> Amogus {1,4, 5};
 

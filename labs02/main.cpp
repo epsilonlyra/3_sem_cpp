@@ -8,7 +8,7 @@ const State MaxState = 1000;
 
 class GeneralState {
 
-    protected:
+    public:
         std::set <State> state;
 
     public:
@@ -186,14 +186,13 @@ int seed_for_State = 126;
 int seed_for_Test = 0;
 
 GeneralState Kolya(100, -1000, 1000, seed_for_State);
-SegmentState s (0, 100);
+SegmentState s (0, 99);
 ProbabilityTest pt(-1000, 1000);
 
 GeneralState Evgen;
 
-std::ofstream fout;
 
-//Kolya.write_in_file(fout);
+std::ofstream fout;
 
 
 fout.open("results.txt");
@@ -201,7 +200,7 @@ fout.open("results.txt");
 fout << "State seed" << ';' <<  seed_for_State << ';'
                             << "Test seed" << ';' << seed_for_Test << '\n';
 
-fout << "Test_Count" <<';' << "Random100" <<';' << "Consecutive100" << '\n';
+fout << "Test_Count" <<';' << "Random100" <<';' << "Consecutive 0-99" << '\n';
 
 bool done = false;
 
@@ -213,40 +212,12 @@ while(!done){
                                 << pt.different_seed_test(s, test_amount, seed_for_Test) << '\n';
     test_amount  += 10;
 
-    if (test_amount > 20000){
+    if (test_amount > 40000){
         done = true;
     }
 }
 
 fout.close();
 
-/*DiscreteState d(0);
-
-
-std::set<State> Elena {1,4, 5};
-
-
-
-
-std :: cout << pt.test(d, 2000, 5) << '\n';
-std :: cout << pt.test(s, 20000000, 5) << '\n';
-std :: cout << pt.test(Kolya, 20000000, 5) << '\n';
-*/
-
-/*
-
-std::set<State> Anoshin {1,4, 5};
-std::set<State> Amogus {1,4, 5};
-
-GeneralState ElenaT(Elena);
-GeneralState AnoshinA(Anoshin);
-GeneralState AmogusS(Amogus);
-
-AmogusS = A;
-
-    for (std::set<State>::iterator i = AmogusS.state.begin(); i !=  AmogusS.state.end(); ++i){
-                std :: cout << *i << '\n';
-        }
-*/
 return 0;
 }

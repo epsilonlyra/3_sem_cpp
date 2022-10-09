@@ -2,9 +2,124 @@
 #include<cstring>
 #include<cassert>
 
-template <typename T>
+template <typename T, int N = 2> // possible value of N 2, 3
 
 class Grid final {
+
+    public:
+        using value_type = T;
+        using size_type = unsigned;
+        using  plane = Grid<T, N - 1>;
+
+    private:
+        Grid<T, N - 1> *level = nullptr;
+        size_type z_size = 0;
+        size_type dimensions [N - 1];
+
+    public:
+
+        Grid (T const &t) : Grid(1, 1, 1) {
+            level[0][0][0] = t;
+        }
+
+        Grid (size_type z_size, size_type y_size, size_type x_size) : level(new plane[z_size]) {
+
+            for (size_type z = 0; z < z_size; z++) {
+               level[z] = Grid<T, N - 1>(y_size, x_size);
+            }
+
+            dimensions[0] = y_size;
+            dimensions[1] = x_size;
+        }
+
+        Grid (size_type z_size, size_type y_size, size_type x_size, T const& t) : Grid(z_size, y_size, x_size) {
+            for (size_type z = 0; z < z_size; z++){
+               level[z] =  Grid<T, N - 1>(y_size, x_size, t);
+            }
+        }
+
+        Grid (Grid const &obj) : Grid(obj.z_size, obj.y_size, obj.x_size) {
+           // copy constuctor
+
+           for (size_type z = 0; z < z_size; z ++) {
+                level[z](obj.level[z]);
+            }
+        }
+
+        Grid (Grid &&obj) : level(obj.level), z_size(obj.z_size) {
+            // move constructor
+
+            for (int i = 0; i < N - 1; i++){
+                dimensions[i] = obj.dimensions[i];
+            }
+
+            for (int i = 0; i < N - 1; i++){
+                obj.dimensions[i] = 0;
+            }
+
+            obj.z_size = 0;
+            obj.level = nullptr;
+        }
+
+        Grid& operator= (Grid &obj) {
+            // copy assignment
+
+            Grid tmp(obj);
+            for (size_type z = 0; z < z_size; z++){
+                level[z] = obj.level[z];
+            }
+
+            return *this;
+        }
+
+        Grid& operator= (Grid &&obj) {
+            // move assignment
+
+            if (&obj == this) {
+                return *this;
+            }
+
+            delete [] level;
+            z_size = obj.z_size;
+
+            for (int i = 0; i < N - 1; i++){
+                dimensions[i] = obj.dimensions[i];
+            }
+
+            level = obj.level;
+
+
+            obj.z_size = 0;
+            for (int i = 0; i < N - 1; i++){
+                obj.dimensions[i] = 0;
+            }
+
+            obj.level = nullptr;
+
+            return *this;
+        }
+
+        T operator() (size_type z, size_type y_idx, size_type x_idx) const {
+            return level[z](y_idx, x_idx);
+        }
+
+        T& operator() (size_type z, size_type y_idx, size_type x_idx) { // ??????
+            return level[z](y_idx, x_idx);
+        }
+
+
+        Grid<T, N - 1> operator[] (int z) const {
+            return level[z];
+        }
+
+
+        ~Grid() {
+            delete [] level;
+        }
+};
+
+template<typename T>
+class Grid<T, 2> final {
 
     class Shevelev {
 
@@ -35,8 +150,10 @@ class Grid final {
         Grid (T* data, size_type y_size, size_type x_size) : data(data), y_size(y_size), x_size(x_size) {}
 
         Grid (T const &t) : Grid(1, 1) {
-            data[1] = t;
+            data[0] = t;
         }
+
+        Grid(){}
 
         Grid (size_type y_size, size_type x_size) : data(new T[y_size * x_size]), y_size(y_size), x_size(x_size) {
             T t;
@@ -78,6 +195,9 @@ class Grid final {
 
         Grid& operator= (Grid &&obj) {
             // move assignment
+             if (&obj == this) {
+                return *this;
+            }
 
             delete [] data;
 
@@ -127,7 +247,6 @@ class Grid final {
         }
 };
 
-
 int main() {
 
 using  gsize_t = Grid<int> ::size_type;
@@ -155,6 +274,15 @@ for (gsize_t y_idx = 0; y_idx != g.get_y_size(); ++y_idx) {
     }
 }
 
+Grid<float, 3> const g3 (2, 3, 4, 1.0f);
+assert(1.0f == g3(1, 1, 1));
 
-return 0;
+
+Grid<float, 2> g2 (2, 5, 2.0f);
+assert(2.0f == g2(1, 1));
+
+g2 = g3[1];
+assert(1.0f == g2(1,1));
+
+
 }

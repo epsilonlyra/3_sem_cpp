@@ -38,11 +38,11 @@ class Grid final {
             }
         }
 
-        Grid (Grid const &obj) : Grid(obj.z_size, obj.y_size, obj.x_size) {
+        Grid (Grid const &obj) : Grid(obj.z_size, obj.dimensions[0], obj.dimensions[1]) {
            // copy constuctor
 
            for (size_type z = 0; z < z_size; z ++) {
-                level[z](obj.level[z]);
+                level[z] = obj.level[z];
             }
         }
 

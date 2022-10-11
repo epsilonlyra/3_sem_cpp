@@ -2,7 +2,7 @@
 #include<cstring>
 #include<cassert>
 
-template <typename T, int N = 2> // N >= 2
+template <typename T, int N = 2> // possible value of N 2, 3
 
 class Grid final {
 
@@ -13,19 +13,25 @@ class Grid final {
     private:
         plane* level = nullptr;
         size_type z_size = 0;
+        size_type dimensions [N - 1];
 
     public:
 
-        Grid() = default;
+        Grid (T const &t) : Grid(1, 1, 1, t) {}
 
-        template <typename Head, typename... Tail>
-        Grid (Head head, Tail... tail) : level(new plane[head]), z_size(head)  {
+        Grid (size_type z_size, size_type y_size, size_type x_size) : Grid(z_size, y_size, x_size, T()) {}
+
+        Grid (size_type z_size, size_type y_size, size_type x_size, T const& t) : level(new plane[z_size]), z_size(z_size) {
+
             for (size_type z = 0; z < z_size; z++){
-               level[z] =  plane(tail...);
+               level[z] =  plane (y_size, x_size, t);
             }
+
+            dimensions[0] = y_size;
+            dimensions[1] = x_size;
         }
 
-        Grid (Grid const &obj) : level(new plane[obj.z_size]), z_size(obj.z_size)  {
+        Grid (Grid const &obj) : Grid(obj.z_size, obj.dimensions[0], obj.dimensions[1]) {
            // copy constuctor
 
            for (size_type z = 0; z < z_size; z ++) {
@@ -35,6 +41,15 @@ class Grid final {
 
         Grid (Grid &&obj) : level(obj.level), z_size(obj.z_size) {
             // move constructor
+
+            for (int i = 0; i < N - 1; i++){
+                dimensions[i] = obj.dimensions[i];
+            }
+
+            for (int i = 0; i < N - 1; i++){
+                obj.dimensions[i] = 0;
+            }
+
             obj.z_size = 0;
             obj.level = nullptr;
         }
@@ -49,6 +64,10 @@ class Grid final {
 
             z_size = obj.z_size;
 
+            for (int i = 0; i < N - 1; i++){
+                dimensions[i] = obj.dimensions[i];
+            }
+
             return *this;
         }
 
@@ -62,26 +81,31 @@ class Grid final {
             delete [] level;
             z_size = obj.z_size;
 
+            for (int i = 0; i < N - 1; i++){
+                dimensions[i] = obj.dimensions[i];
+            }
+
             level = obj.level;
 
             obj.z_size = 0;
+            for (int i = 0; i < N - 1; i++){
+                obj.dimensions[i] = 0;
+            }
 
             obj.level = nullptr;
 
             return *this;
         }
 
-        template <typename Head, typename... Tail>
-        T operator() (Head head, Tail... tail) const {
-            return level[head](tail...);
+        T operator() (size_type z, size_type y_idx, size_type x_idx) const {
+            return level[z](y_idx, x_idx);
         }
 
-        template <typename Head, typename... Tail>
-        T& operator() (Head head, Tail... tail)  {
-            return level[head](tail...);
+        T& operator() (size_type z, size_type y_idx, size_type x_idx) {
+            return level[z](y_idx, x_idx);
         }
 
-        plane& operator[] (int z) {
+        plane& operator[] (int z) const {
             return level[z];
         }
 
@@ -95,12 +119,20 @@ class Grid final {
         }
 
 
-        ~Grid() {
-            delete [] level;
+        size_type get_y_size() const {
+            return dimensions[0];
         }
 
-        size_type get_z_size() {
+        size_type get_x_size() const {
+            return dimensions[1];
+        }
+
+        size_type get_z_size() const {
             return z_size;
+        }
+
+        ~Grid() {
+            delete [] level;
         }
 };
 
@@ -254,15 +286,7 @@ assert(1.0f == g3(1, 1, 1));
 Grid<float, 2> g2 (2, 5, 2.0f);
 assert(2.0f == g2(1, 1));
 
-g3 = 6.0f;
-
-g3[1][1][1] = 2.0f;
-
 g2 = g3[1];
-
-Grid<float, 4>  g4 (2, 3, 4, 5,  1.0f);
-
-std :: cout << g4[1][1][1][1];
-assert(2.0f == g2(1,1));
+assert(1.0f == g2(1,1));
 
 }

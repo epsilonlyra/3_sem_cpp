@@ -1,11 +1,10 @@
 #include<iostream>
-#include <queue>
+#include<memory>
 
 template <typename T>
-struct Comparator{
+struct Comparator {
     virtual bool operator () (T const &, T const &) const = 0;
 };
-
 
 struct IntComparator final : Comparator<int> {
     bool operator() (int  const &left, int const &right) const override {
@@ -28,9 +27,9 @@ struct DefaultComparator final : Comparator<T> {
 
 // qsort realisation
 template <typename Element, typename Comparator>
-void qsort(Element* arr, int N, Comparator &compare) {
+void qsort(Element* array, int N, Comparator &compare) {
     /*
-    N - number of the last element in array (size - 1)
+    N - number of the last element in arrayay (size - 1)
     */
     int i = 0;
     int j = N;
@@ -38,36 +37,36 @@ void qsort(Element* arr, int N, Comparator &compare) {
     int pivot = N /2;
 
     while (i <= j) {
-        while (compare(arr[i], arr[pivot])) {
+        while (compare(array[i], array[pivot])) {
             i++;
         }
 
-        while (compare(arr[pivot], arr[j])) {
+        while (compare(array[pivot], array[j])) {
             j--;
         }
 
         if (i <= j) {
-            Element temp = arr[i];
-            arr[i] = arr[j];
-            arr[j] = temp;
+            Element temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
             i++;
             j--;
         }
 
         if (j > 0) {
-            qsort(arr, j, compare);
+            qsort(array, j, compare);
         }
         if (N > i) {
-            qsort(arr + i, N - i, compare);
+            qsort(array + i, N - i, compare);
         }
 
     }
 }
 
 template <typename Element>
-void autoqsort(Element* arr, int N) {
+void autoqsort(Element* array, int N) {
     DefaultComparator<Element> compare;
-    qsort(arr, N, compare);
+    qsort(array, N, compare);
 }
 
 
@@ -76,7 +75,7 @@ void autoqsort(Element* arr, int N) {
 template <typename T, typename Comparator = DefaultComparator<T>>
 class PriorityQueue{
     protected:
-        T*  arr;
+        std :: unique_ptr<T[]> array;
         Comparator compare;
         int size;
         int capacity;
@@ -86,11 +85,11 @@ class PriorityQueue{
         }
 
         int left_child(int i) {
-            return (2*i + 1);
+            return (2 * i + 1);
         }
 
         int right_child(int i) {
-            return (2*i + 2);
+            return (2 * i + 2);
         }
 
         void heapify(int index) {
@@ -106,42 +105,37 @@ class PriorityQueue{
             int smallest = index;
 
 
-            if (left < size && compare(arr[left], arr[index])){
+            if (left < size && compare(array[left], array[index])){
                 smallest = left;
             }
-            if (right < size && compare(arr[right], arr[smallest])){
+            if (right < size && compare(array[right], array[smallest])){
                 smallest = right;
             }
 
             if (smallest != index)
             {
-                T temp = arr[index];
-                arr[index] = arr[smallest];
-                arr[smallest] = temp;
+                T temp = array[index];
+                array[index] = array[smallest];
+                array[smallest] = temp;
                 heapify(smallest);
             }
         }
 
     public:
 
-        PriorityQueue(const Comparator &compare) {
-            capacity = 10;
-            arr = new T [capacity];
-            size = 0;
-            this->compare = compare;
+        PriorityQueue(const Comparator &compare) : capacity(10), size(0), compare(compare) {
+            array =  std :: make_unique<T[]>(capacity);
         }
 
-        PriorityQueue() {
-            Comparator k;
-            *this = PriorityQueue(k);
-        }
+        PriorityQueue() : PriorityQueue(Comparator() ) {}
 
         T peek() {
             if (size == 0){
                 std :: cout << "error, queue is empty" << '\n';
+                return T();
             }
 
-            return arr[0];
+            return array[0];
         }
 
         void push (T element) {
@@ -152,14 +146,14 @@ class PriorityQueue{
             }
 
             size++;
-            arr[size - 1] = element;
+            array[size - 1] = element;
 
             int curr = size - 1;
 
-            while (curr > 0 && compare(arr[curr], arr[parent(curr)])) {
-                T temp = arr[parent(curr)];
-                arr[parent(curr)] = arr[curr];
-                arr[curr] = temp;
+            while (curr > 0 && compare(array[curr], array[parent(curr)])) {
+                T temp = array[parent(curr)];
+                array[parent(curr)] = array[curr];
+                array[curr] = temp;
                 curr = parent(curr);
             }
         }
@@ -169,9 +163,9 @@ class PriorityQueue{
                 return;
             }
 
-            T last_element = arr[size - 1];
+            T last_element = array[size - 1];
 
-            arr[0] = last_element;
+            array[0] = last_element;
             size--;
 
             heapify(0);
@@ -184,7 +178,7 @@ class PriorityQueue{
 
         void free(){
             size = 0;
-            delete [] arr;
+            array.release();
         }
 };
 
@@ -194,7 +188,7 @@ int main() {
 ReverseIntComparator compare;
 
 bool testing_qsort = false;
-if (testing_qsort){
+if (testing_qsort) {
     int a[] = {17, 25, 3, 4, 5};
     float b[] = {1.0, 2.0, 4.5, 0.4, 7.2};
 
@@ -212,7 +206,7 @@ if (testing_qsort){
 }
 
 bool testing_queue = true;
-if (testing_queue){
+if (testing_queue) {
 
     PriorityQueue<int, ReverseIntComparator> Test (compare);
 

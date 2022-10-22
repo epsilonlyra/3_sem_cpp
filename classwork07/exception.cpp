@@ -3,13 +3,7 @@
 #include<cmath>
 
 struct base_exception {
-
-    virtual std :: string what() {
-        return "amogus";
-    }
-
-    virtual ~base_exception() = default;
-
+    virtual std :: string what() = 0;
 };
 
 struct math_exception final : base_exception {
@@ -29,7 +23,6 @@ double inverse(double x) {
     if (x == 0) {
         throw math_exception();
     }
-
     return 1./ x;
 }
 
@@ -38,7 +31,6 @@ double root(double x) {
         throw invalid_argument();
     }
     return std :: sqrt(x);
-
 }
 
 
@@ -52,8 +44,6 @@ try {
 catch (base_exception &error) {
     std :: cout << error.what();
 }
-
-
 
 return 0;
 }

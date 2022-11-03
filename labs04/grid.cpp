@@ -85,7 +85,7 @@ class Grid final {
             return level[z];
         }
 
-        Grid& operator=(T const &t) {
+        Grid& operator= (T const &t) {
 
             for (size_type z = 0; z < z_size; z++) {
                 level[z] = t;
@@ -107,19 +107,16 @@ class Grid final {
 template<typename T>
 class Grid<T, 2> final {
 
-    class Shevelev {
-
-        friend Grid;
+    class Shevelev final  {
 
         private :
             Grid& grid;
             int i;
 
-        protected:
+        public:
             Shevelev(Grid &grid, int i): grid(grid), i(i) {}
 
-        public:
-            T& operator[](int j) {
+            T& operator[] (int j) {
                 return grid(i, j);
             }
     };
@@ -197,7 +194,7 @@ class Grid<T, 2> final {
             return data [y_idx * x_size + x_idx];
         }
 
-        Grid& operator=(T const &t) {
+        Grid& operator= ( T const &t) {
 
             for (auto it = data, end = data + x_size * y_size; it != end; ++it) {
                 *it = t;
@@ -205,7 +202,7 @@ class Grid<T, 2> final {
             return *this;
         }
 
-        Shevelev operator[](int i) {
+        Shevelev operator[] (int i) {
             return Shevelev(*this, i);
         }
 

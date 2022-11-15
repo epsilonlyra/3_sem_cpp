@@ -1,13 +1,10 @@
 #include <iostream>
-#include <set>
+#include <unordered_set>
 
 /*
 This algorithm is extremly inefficent
-Time complexity O(N^3) ??????
+Time complexity O(N^2)
 Memory complexity  O(N)
-
-However if all the values in the array are different,
-one can use sort_iterator_unique, which is far more efficient
 
 */
 
@@ -37,7 +34,7 @@ struct SortIterator {
     using pointer           = T*;
     using reference         = T&;
 
-    SortIterator(pointer begin, pointer end) : begin(begin), end(end) {
+    SortIterator(const pointer begin, const  pointer end) : begin(begin), end(end) {
 
         current = begin;
 
@@ -62,7 +59,7 @@ struct SortIterator {
 
         for (pointer i = begin; i != end; ++i) {
 
-            if (forbidden_pointers.count(i) == 0) {
+            if (forbidden_pointers.find(i) == forbidden_pointers.end()) {
 
                 if (new_current == nullptr) {
                     new_current = i;
@@ -80,6 +77,7 @@ struct SortIterator {
             current = end;
         }
         else {
+
             current = new_current;
             forbidden_pointers.insert(current);
         }
@@ -110,19 +108,24 @@ struct SortIterator {
         pointer begin;
         pointer end;
         pointer current;
-        std :: set<pointer> forbidden_pointers;
+        std :: unordered_set <pointer> forbidden_pointers;
 };
 
 int main() {
 
-int input[5]  = { 5, 4, 3, 2, 2};
+using Descending = Descending<int>;
+using Ascending = Ascending<int>;
+
+int input[5]  = { 5, 4, 3, 7, 2};
 int output[5] = { 0, 0, 0, 0, 0 };
 
 int * input_ptr  = input;
 int * output_ptr = output;
 
-std::copy(SortIterator<int, Descending<int>>(input_ptr, input_ptr + 5),
-          SortIterator<int, Descending<int>>(input_ptr + 5),
+
+
+std::copy(SortIterator<int, Descending>(input_ptr, input_ptr + 5),
+          SortIterator<int, Descending>(input_ptr + 5),
           output_ptr);
 
 

@@ -8,27 +8,19 @@ class Rational {
     public:
         Rational();
 
-        Rational(int , int);
+        Rational(int a, int b);
 
-        int Numerator() const;
+        int Numerator();
 
-        int Denominator() const;
+        int Denominator();
 
     private:
-        int nod(int, int );
-        int numer;
+        int nod(int a, int b );
 
+        int numer;
         int denomin;
 
 };
-
-
-
-
-
-
-
-
 
 
 #endif

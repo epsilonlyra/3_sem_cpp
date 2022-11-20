@@ -1,7 +1,5 @@
 #include "Rational.hpp"
 
-
-
 Rational :: Rational() : numer(0), denomin(1) { }
 
 int Rational ::  nod(int numerator, int denominator) {
@@ -29,11 +27,12 @@ Rational ::  Rational (int numerator, int denominator) : numer(0), denomin(1) {
     denomin = denominator / nod_value;
 }
 
-int Rational ::  Numerator() const {
+int  Rational:: Numerator() {
     return numer;
 }
 
-int  Rational :: Denominator() const {
+
+int  Rational :: Denominator() {
     return denomin;
 }
 
